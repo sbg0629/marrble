@@ -203,25 +203,28 @@ export class Box2dPhysics implements IPhysics {
     });
     this.deleteCandidates = [];
 
-    // 조작된 마블에게 지속적인 부스트
+    // 조작된 마블에게 자연스러운 부스트
     if (this.riggedMarbleId !== null && this.marbleMap[this.riggedMarbleId]) {
       const riggedBody = this.marbleMap[this.riggedMarbleId];
-      // 다른 마블들보다 앞서 있는지 확인
-      let isLeading = true;
       const riggedY = riggedBody.GetPosition().y;
+
+      // 1등과의 거리 계산
+      let maxY = riggedY;
       for (const id in this.marbleMap) {
         if (Number(id) !== this.riggedMarbleId) {
           const otherY = this.marbleMap[id].GetPosition().y;
-          if (otherY > riggedY + 0.5) {
-            isLeading = false;
-            break;
+          if (otherY > maxY) {
+            maxY = otherY;
           }
         }
       }
-      // 1등이 아니면 부스트
-      if (!isLeading) {
+
+      const gap = maxY - riggedY;
+      // 뒤처진 정도에 비례해서 부스트 (최대 15)
+      if (gap > 0.3) {
+        const force = Math.min(gap * 3, 15);
         riggedBody.ApplyForceToCenter(
-          new this.Box2D.b2Vec2(0, 35),
+          new this.Box2D.b2Vec2(0, force),
           true,
         );
       }
