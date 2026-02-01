@@ -6,7 +6,9 @@
       "Bash(node:*)",
       "Bash(Remove-Item -Recurse -Force .parcel-cache -ErrorAction SilentlyContinue)",
       "Bash(Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue)",
-      "Bash(Write-Host \"캐시 삭제 완료\")"
+      "Bash(Write-Host \"캐시 삭제 완료\")",
+      "Bash(taskkill:*)",
+      "Bash(PARCEL_WORKERS=0 npm run dev:*)"
     ]
   }
 }
