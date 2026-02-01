@@ -32,6 +32,33 @@
   <link rel='stylesheet' href='assets/style.scss' />
 </head>
 <body>
+<div id="passwordScreen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#1a1a1a;display:flex;justify-content:center;align-items:center;z-index:99999;">
+  <div style="text-align:center;color:white;font-family:sans-serif;">
+    <h2 style="margin-bottom:20px;">비밀번호를 입력하세요</h2>
+    <input type="password" id="passwordInput" style="padding:10px;font-size:18px;width:200px;text-align:center;" placeholder="비밀번호">
+    <br><br>
+    <button onclick="checkPassword()" style="padding:10px 30px;font-size:16px;cursor:pointer;">입장</button>
+    <p id="passwordError" style="color:#ff6b6b;margin-top:10px;display:none;">비밀번호가 틀렸습니다</p>
+  </div>
+</div>
+<script>
+  function checkPassword() {
+    const input = document.getElementById('passwordInput').value;
+    if (input === '5959') {
+      document.getElementById('passwordScreen').style.display = 'none';
+      sessionStorage.setItem('authenticated', 'true');
+    } else {
+      document.getElementById('passwordError').style.display = 'block';
+    }
+  }
+  document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') checkPassword();
+  });
+  // 이미 인증된 경우 바로 입장
+  if (sessionStorage.getItem('authenticated') === 'true') {
+    document.getElementById('passwordScreen').style.display = 'none';
+  }
+</script>
 <script type="module" src="./src/index.ts"></script>
 <script type="text/javascript">
 
@@ -273,37 +300,65 @@
 
     checkNotice();
 
-    // 관리자 모드 (Ctrl+Shift+A로 토글)
-    let adminPanelVisible = false;
+    // 관리자 모드 (Ctrl+Shift+A로 별도 창 열기)
+    let adminWindow = null;
     document.addEventListener('keydown', (e) => {
       if (e.ctrlKey && e.shiftKey && e.key === 'A') {
         e.preventDefault();
-        adminPanelVisible = !adminPanelVisible;
-        document.querySelector('#adminPanel').style.display =
-          adminPanelVisible ? 'block' : 'none';
-        if (adminPanelVisible) {
-          updateRiggedSelect();
-        }
+        openAdminWindow();
       }
     });
 
-    function updateRiggedSelect() {
-      const select = document.querySelector('#sltRiggedWinner');
-      select.innerHTML = '<option value="">-- 선택 안함 --</option>';
+    function openAdminWindow() {
+      if (adminWindow && !adminWindow.closed) {
+        adminWindow.focus();
+        return;
+      }
+
       const names = getNames();
       const uniqueNames = [...new Set(names.map(n => parseName(n).name))];
-      uniqueNames.forEach(name => {
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        select.appendChild(option);
-      });
+      const optionsHtml = uniqueNames.map(name =>
+        `<option value="${name}">${name}</option>`
+      ).join('');
+
+      adminWindow = window.open('', 'AdminPanel', 'width=300,height=200,top=100,left=100');
+      adminWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>관리자</title>
+          <style>
+            body { font-family: sans-serif; padding: 20px; background: #1a1a1a; color: white; }
+            select { width: 100%; padding: 10px; margin: 10px 0; font-size: 16px; }
+            .title { font-weight: bold; font-size: 18px; margin-bottom: 15px; color: #ff6b6b; }
+            .info { font-size: 12px; color: #888; margin-top: 15px; }
+          </style>
+        </head>
+        <body>
+          <div class="title">관리자 모드</div>
+          <label>1등 지정:</label>
+          <select id="sltRiggedWinner">
+            <option value="">-- 선택 안함 --</option>
+            ${optionsHtml}
+          </select>
+          <div class="info">이 창은 화면 공유에 포함하지 마세요</div>
+          <scr` + `ipt>
+            document.getElementById('sltRiggedWinner').addEventListener('change', (e) => {
+              window.opener.postMessage({ type: 'setRiggedWinner', value: e.target.value }, '*');
+            });
+          </scr` + `ipt>
+        </body>
+        </html>
+      `);
     }
 
-    document.querySelector('#sltRiggedWinner').addEventListener('change', (e) => {
-      window.options.riggedWinner = e.target.value;
-      window.options.adminMode = !!e.target.value; // 선택하면 adminMode 활성화
-      getReady();
+    // 관리자 창에서 메시지 수신
+    window.addEventListener('message', (e) => {
+      if (e.data.type === 'setRiggedWinner') {
+        window.options.riggedWinner = e.data.value;
+        window.options.adminMode = !!e.data.value;
+        getReady();
+      }
     });
   }
 </script>
@@ -365,14 +420,6 @@
       </button>
     </div>
   </div>
-</div>
-<div id="adminPanel" style="display:none; position:fixed; top:10px; right:10px; background:rgba(255,0,0,0.9); padding:15px; border-radius:8px; z-index:9999; color:white; font-family:sans-serif;">
-  <div style="font-weight:bold; margin-bottom:10px;">관리자 모드</div>
-  <label style="display:block; margin-bottom:5px;">1등 지정:</label>
-  <select id="sltRiggedWinner" style="width:100%; padding:5px;">
-    <option value="">-- 선택 안함 --</option>
-  </select>
-  <div style="margin-top:10px; font-size:12px; opacity:0.8;">Ctrl+Shift+A로 닫기</div>
 </div>
 <div id="notice">
   <h1>Notice</h1>

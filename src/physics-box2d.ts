@@ -12,6 +12,7 @@ export class Box2dPhysics implements IPhysics {
   private entities: ({ body: Box2D.b2Body } & MapEntityState)[] = [];
 
   private deleteCandidates: Box2D.b2Body[] = [];
+  private riggedMarbleId: number | null = null;
 
   async init(): Promise<void> {
     this.Box2D = await Box2DFactory();
@@ -29,6 +30,7 @@ export class Box2dPhysics implements IPhysics {
       this.world.DestroyBody(body);
     });
     this.marbleMap = {};
+    this.riggedMarbleId = null;
   }
 
   createStage(stage: StageDef): void {
@@ -192,14 +194,7 @@ export class Box2dPhysics implements IPhysics {
   }
 
   boostMarble(id: number): void {
-    const body = this.marbleMap[id];
-    if (body) {
-      // 아래 방향으로 강한 초기 속도 부여
-      body.ApplyLinearImpulseToCenter(
-        new this.Box2D.b2Vec2(0, 50),
-        true,
-      );
-    }
+    this.riggedMarbleId = id;
   }
 
   step(deltaSeconds: number): void {
@@ -207,6 +202,30 @@ export class Box2dPhysics implements IPhysics {
       this.world.DestroyBody(body);
     });
     this.deleteCandidates = [];
+
+    // 조작된 마블에게 지속적인 부스트
+    if (this.riggedMarbleId !== null && this.marbleMap[this.riggedMarbleId]) {
+      const riggedBody = this.marbleMap[this.riggedMarbleId];
+      // 다른 마블들보다 앞서 있는지 확인
+      let isLeading = true;
+      const riggedY = riggedBody.GetPosition().y;
+      for (const id in this.marbleMap) {
+        if (Number(id) !== this.riggedMarbleId) {
+          const otherY = this.marbleMap[id].GetPosition().y;
+          if (otherY > riggedY + 0.5) {
+            isLeading = false;
+            break;
+          }
+        }
+      }
+      // 1등이 아니면 부스트
+      if (!isLeading) {
+        riggedBody.ApplyForceToCenter(
+          new this.Box2D.b2Vec2(0, 35),
+          true,
+        );
+      }
+    }
 
     this.world.Step(deltaSeconds, 6, 2);
 

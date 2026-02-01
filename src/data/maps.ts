@@ -333,62 +333,6 @@ export const stages: StageDef[] = [
         },
         props: { density: 1, angularVelocity: 0, restitution: 0 },
       },
-      {
-        position: { x: 9.5, y: 98 },
-        type: 'static',
-        shape: {
-          type: 'box',
-          width: 0.25,
-          height: 0.25,
-          rotation: 0.7853981633974483,
-        },
-        props: { density: 1, angularVelocity: 0, restitution: 0 },
-      },
-      {
-        position: { x: 12.75, y: 98 },
-        type: 'static',
-        shape: {
-          type: 'box',
-          width: 0.25,
-          height: 0.25,
-          rotation: 0.7853981633974483,
-        },
-        props: { density: 1, angularVelocity: 0, restitution: 0 },
-      },
-      {
-        position: { x: 16, y: 98 },
-        type: 'static',
-        shape: {
-          type: 'box',
-          width: 0.25,
-          height: 0.25,
-          rotation: 0.7853981633974483,
-        },
-        props: { density: 1, angularVelocity: 0, restitution: 0 },
-      },
-      {
-        position: { x: 19.25, y: 98 },
-        type: 'static',
-        shape: {
-          type: 'box',
-          width: 0.25,
-          height: 0.25,
-          rotation: 0.7853981633974483,
-        },
-        props: { density: 1, angularVelocity: 0, restitution: 0 },
-      },
-      {
-        position: { x: 22.5, y: 98 },
-        type: 'static',
-        shape: {
-          type: 'box',
-          width: 0.25,
-          height: 0.25,
-          rotation: 0.7853981633974483,
-        },
-        props: { density: 1, angularVelocity: 0, restitution: 0 },
-      },
-
       // wheels
       {
         position: { x: 8, y: 75 },
@@ -419,12 +363,6 @@ export const stages: StageDef[] = [
         type: 'kinematic',
         shape: { type: 'box', width: 2, height: 0.1, rotation: 0 },
         props: { density: 1, angularVelocity: 3.5, restitution: 0 },
-      },
-      {
-        position: { x: 14, y: 106.75 },
-        type: 'kinematic',
-        shape: { type: 'box', width: 2, height: 0.1, rotation: 0 },
-        props: { density: 1, angularVelocity: -1.2, restitution: 0 },
       },
     ],
   },
