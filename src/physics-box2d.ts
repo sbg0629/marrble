@@ -220,9 +220,9 @@ export class Box2dPhysics implements IPhysics {
       }
 
       const gap = maxY - riggedY;
-      // 뒤처진 정도에 비례해서 부스트 (최대 15)
-      if (gap > 0.3) {
-        const force = Math.min(gap * 3, 15);
+      // 뒤처진 정도에 비례해서 부스트 (최대 25)
+      if (gap > 0.2) {
+        const force = Math.min(gap * 5, 25);
         riggedBody.ApplyForceToCenter(
           new this.Box2D.b2Vec2(0, force),
           true,
